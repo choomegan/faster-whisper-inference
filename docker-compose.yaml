@@ -1,0 +1,26 @@
+services:
+
+  local:
+    stdin_open: true
+    tty: true
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    image: faster-whisper
+    container_name: faster-whisper-inf
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - $PWD:/whisper
+      - /mnt/c/Projects/models:/models
+      - /mnt/c/Projects/datasets:/datasets
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    shm_size: 16gb
+    working_dir: /whisper

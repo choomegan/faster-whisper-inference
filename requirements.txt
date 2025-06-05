@@ -1,0 +1,4 @@
+ipykernel
+transformers[torch]>=4.23
+faster-whisper
+jiwer
