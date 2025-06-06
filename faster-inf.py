@@ -30,10 +30,18 @@ def compute_asr_metrics(
 
 
 def normalise(text: str) -> str:
+    """
+    Normlize text for fair wer comparison
+    """
     text = text.lower()
-    if "<unk>" in text:
-        text = re.sub(r"\s*<unk>\s*", " ", text)
-    return text.strip()
+    # remove unwanted chars
+    cleaned = re.sub(r"[^A-Za-z0-9#\' ]+", " ", text)
+    # remove multiple spaces
+    cleaned = re.sub(r"\s+", " ", cleaned)
+    if "<unk>" in cleaned:
+        cleaned = re.sub(r"\s*<unk>\s*", " ", cleaned)
+    return cleaned.strip()
+
 
 def compute_asr_metrics(
     reference: Union[List, str], hypothesis: Union[List, str]
