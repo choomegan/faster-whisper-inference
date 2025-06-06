@@ -3,10 +3,9 @@ services:
   local:
     stdin_open: true
     tty: true
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
-    image: faster-whisper
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: faster-whisper-inf
     deploy:
       resources:
