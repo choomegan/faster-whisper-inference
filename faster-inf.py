@@ -1,20 +1,27 @@
-from faster_whisper import WhisperModel
-import os
-import tqdm
-import jiwer
 import json
+import logging
+import os
 import re
-from typing import Tuple, Union, List, Dict
+import time
+from typing import Dict, List, Tuple, Union
+
+import jiwer
+import tqdm
 import yaml
-##################### CONFIGS #########################
+from faster_whisper import WhisperModel
+
+logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
+
+##################### config['evaluation']S #########################
 config = yaml.safe_load(open("config.yaml", encoding="utf-8"))
 
-MODEL_DIR = config['ct2_model_dir']
-MANIFEST_PATH = config['manifest_path']
-OUTPUT_PATH = config['output_path']
-BEAM_SIZE = config['beam_size']
-DEVICE = config['device']
+MODEL_DIR = config["evaluation"]["ct2_model_dir"]
+MANIFEST_PATH = config["evaluation"]["manifest_path"]
+OUTPUT_PATH = config["evaluation"]["output_path"]
+BEAM_SIZE = config["evaluation"]["beam_size"]
+DEVICE = config["evaluation"]["device"]
 #######################################################
+
 
 def compute_asr_metrics(
     reference: Union[List, str], hypothesis: Union[List, str]
@@ -75,29 +82,35 @@ def load_manifest_nemo(input_manifest_path: str) -> List[Dict[str, str]]:
 
     return dict_list
 
+
 def transcribe_files():
-    print("loading model......")
+    """
+    Main method to transcribe files from a manifest
+    """
+    logging.info("Loading model......")
     model = WhisperModel(MODEL_DIR, device=DEVICE, compute_type="float16")
+    logging.info("Model loaded!")
 
     base_dir = os.path.dirname(MANIFEST_PATH)
 
     if os.path.exists(OUTPUT_PATH):
         os.remove(OUTPUT_PATH)
-    else:
-        print("The file does not exist")
 
     data = load_manifest_nemo(MANIFEST_PATH)
 
     references = []
     hypotheses = []
 
+    start = time.time()
     for item in tqdm.tqdm(data):
-        audio_filepath = os.path.join(base_dir, item['audio_filepath'])
+        audio_filepath = os.path.join(base_dir, item["audio_filepath"])
         segments, _ = model.transcribe(audio_filepath, beam_size=BEAM_SIZE)
 
         segments = list(segments)  # The transcription will actually run here.
-        transcript = " ".join(segment.text for segment in segments) # join multiple segments
-        item['pred'] = transcript
+        transcript = " ".join(
+            segment.text for segment in segments
+        )  # join multiple segments
+        item["pred"] = transcript
 
         text = normalise(item["text"])
         pred_text = normalise(transcript)
@@ -106,20 +119,22 @@ def transcribe_files():
         hypotheses.append(pred_text)
 
         wer = jiwer.wer(text, pred_text)
-        item['wer'] = wer
+        item["wer"] = wer
 
         with open(OUTPUT_PATH, "a", encoding="utf-8") as f:
             f.write(
-                json.dumps(item,
+                json.dumps(
+                    item,
                     ensure_ascii=False,
                 )
                 + "\n"
             )
-
+    end = time.time()
+    logging.info("Time elapsed (minutes): %s", (end - start) / 60)
     overall_wer, overall_cer, overall_mer = compute_asr_metrics(references, hypotheses)
-    print(f"WER: {overall_wer}%")
-    print(f"CER: {overall_cer}%")
-    print(f"Word Accuracy: {100-overall_mer}%")
+    logging.info("WER: %s%", overall_wer)
+    logging.info("CER: %s%", overall_cer)
+    logging.info("Word Accuracy: %s%", overall_mer)
 
 
 if __name__ == "__main__":
