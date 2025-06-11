@@ -20,6 +20,7 @@ MANIFEST_PATH = config["evaluation"]["manifest_path"]
 OUTPUT_PATH = config["evaluation"]["output_path"]
 BEAM_SIZE = config["evaluation"]["beam_size"]
 DEVICE = config["evaluation"]["device"]
+COMPUTE_TYPE = config['evaluation']['quant']
 #######################################################
 
 
@@ -88,7 +89,7 @@ def transcribe_files():
     Main method to transcribe files from a manifest
     """
     logging.info("Loading model......")
-    model = WhisperModel(MODEL_DIR, device=DEVICE, compute_type="float16")
+    model = WhisperModel(MODEL_DIR, device=DEVICE, compute_type=COMPUTE_TYPE)
     logging.info("Model loaded!")
 
     base_dir = os.path.dirname(MANIFEST_PATH)
