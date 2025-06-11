@@ -1,12 +1,12 @@
 convert_model:
-  model_filepath: /models/whisper-large-v2
-  output_model_filepath: /models/whisper-large-v2-ct2-fp16
-  quant: float16
+  model_filepath: /models/whisper/whisper_en_port_adapters_set_1/fastconf_pruned/merged_adapter
+  output_model_filepath: /models/whisper/whisper_en_port_adapters_set_1/fastconf_pruned/merged_adapter_ct2
+  quant: float32
 
 evaluation:
-  ct2_model_dir: /models/whisper-large-v2-ct2-fp16
+  ct2_model_dir: /models/whisper/whisper_en_port_adapters_set_1/fastconf_pruned/merged_adapter_ct2
   beam_size: 5
+  quant: float16
   device: cuda # 'cuda'/'cpu'
-
-manifest_path: /datasets/PORT/set_1_2_test_manifest.json
-output_path: pred_manifest.json
+  manifest_path: /datasets/PORT/mms_set_1/test_split/test_manifest.json
+  output_path: fastconf_pruned_adapters_set_1_test.json
