@@ -22,6 +22,7 @@ Run the following command to convert the model to cTranslate2 format.
 ```
 python3 convert_model.py
 ```
+Copy `tokenizer.json` from `model_filepath` to `output_model_filepath`
 
 ## Running inference
 Edit `evaluation` portion in config file. 
