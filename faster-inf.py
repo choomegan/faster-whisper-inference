@@ -20,7 +20,7 @@ MANIFEST_PATH = config["evaluation"]["manifest_path"]
 OUTPUT_PATH = config["evaluation"]["output_path"]
 BEAM_SIZE = config["evaluation"]["beam_size"]
 DEVICE = config["evaluation"]["device"]
-COMPUTE_TYPE = config['evaluation']['quant']
+COMPUTE_TYPE = config["evaluation"]["quant"]
 #######################################################
 
 
@@ -133,9 +133,9 @@ def transcribe_files():
     end = time.time()
     logging.info("Time elapsed (minutes): %s", (end - start) / 60)
     overall_wer, overall_cer, overall_mer = compute_asr_metrics(references, hypotheses)
-    logging.info("WER: %s%", overall_wer)
-    logging.info("CER: %s%", overall_cer)
-    logging.info("Word Accuracy: %s%", overall_mer)
+    logging.info("WER: %s%%", overall_wer)
+    logging.info("CER: %s%%", overall_cer)
+    logging.info("Word Accuracy: %s%%", overall_mer)
 
 
 if __name__ == "__main__":
