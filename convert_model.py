@@ -29,7 +29,7 @@ def convert_model():
         OUTPUT_MODEL_FILEPATH,
         "--quantization",
         QUANTIZATION,
-        "--copy_files processor_config.json",
+        "--copy_files", "preprocessor_config.json",
     ]
 
     result = subprocess.run(command, capture_output=True, text=True)
