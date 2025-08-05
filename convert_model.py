@@ -6,6 +6,7 @@ import subprocess
 import logging
 
 import yaml
+
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
 ##################### CONFIGS #########################
 config = yaml.safe_load(open("config.yaml", encoding="utf-8"))
@@ -28,6 +29,7 @@ def convert_model():
         OUTPUT_MODEL_FILEPATH,
         "--quantization",
         QUANTIZATION,
+        "--copy_files processor_config.json",
     ]
 
     result = subprocess.run(command, capture_output=True, text=True)
@@ -44,6 +46,7 @@ def convert_model():
         logging.info("Non-fatal STDERR:\n %s", result.stderr)
 
     logging.info("Saved ct2 model to: %s", OUTPUT_MODEL_FILEPATH)
-    
+
+
 if __name__ == "__main__":
     convert_model()
