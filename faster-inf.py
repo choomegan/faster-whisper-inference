@@ -95,15 +95,25 @@ def transcribe_files():
     base_dir = os.path.dirname(MANIFEST_PATH)
 
     if os.path.exists(OUTPUT_PATH):
-        os.remove(OUTPUT_PATH)
+        # os.remove(OUTPUT_PATH)
+        alr_processed = load_manifest_nemo(OUTPUT_PATH)
+        processed_filepaths = set(item["audio_filepath"] for item in alr_processed)
+
+    else:
+        processed_filepaths = set()
 
     data = load_manifest_nemo(MANIFEST_PATH)
+    all_filepaths = set(item["audio_filepath"] for item in data)
+
+    unprocessed_filepaths = all_filepaths - processed_filepaths
+    final_data = [item for item in data if item["audio_filepath"] in unprocessed_filepaths]
 
     references = []
     hypotheses = []
 
+    logging.info("%s number of samples already processed, %s more to go!", len(processed_filepaths), len(unprocessed_filepaths))
     start = time.time()
-    for item in tqdm.tqdm(data):
+    for item in tqdm.tqdm(final_data):
         audio_filepath = os.path.join(base_dir, item["audio_filepath"])
         segments, _ = model.transcribe(audio_filepath, beam_size=BEAM_SIZE)
 
@@ -115,6 +125,10 @@ def transcribe_files():
 
         text = normalise(item["text"])
         pred_text = normalise(transcript)
+
+        if not text:
+            logging.error("Reference text does not exist for audio: %s", audio_filepath)
+            continue
 
         references.append(text)
         hypotheses.append(pred_text)
